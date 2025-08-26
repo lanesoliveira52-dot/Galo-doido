@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlético Mineiro - História</title>
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+  }
+  #jogo {
+      width: 900px;
+      max-width: 95%;
+      margin: 20px auto;
+      padding: 20px;
+      background: linear-gradient(180deg, #000 0%, #fff 100%);
+      border-radius: 10px;
+      position: relative;
+  }
+  button {
+      margin: 10px;
+      padding: 12px 25px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+  }
+  .opcao {
+      background: #fff;
+      color: #000;
+      transition: 0.2s;
+  }
+  .opcao:hover { transform: scale(1.1); }
+  #placar { font-size: 24px; margin: 10px; }
+  #mensagem {
+      position: absolute; top: 40%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 64px; font-weight: bold;
+      display: none; padding: 20px 40px; border-radius: 10px;
+      background: #fff; color: #000; animation: none;
+  }
+  @keyframes golAnim {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      25% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.7; }
+      50% { transform: translate(-50%, -50%) scale(2); opacity: 1; }
+      75% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.7; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+  .confete {
+      position: absolute; width: 10px; height: 10px; border-radius: 50%;
+      animation: cair 2s linear forwards;
+  }
+  @keyframes cair {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
+  }
+  #tocarHino {
+      background: linear-gradient(90deg, #FFD700, #000);
+      color: #fff; font-size: 26px; padding: 20px 40px; margin-bottom: 20px;
+      border: 3px solid #fff; border-radius: 12px; cursor: pointer;
+      box-shadow: 0 0 20px #FFD700; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  #tocarHino:hover { transform: scale(1.1); box-shadow: 0 0 30px #FFD700; }
+</style>
+</head>
+<body>
+
+<h1>Atlético Mineiro - História</h1>
+
+<button id="tocarHino">🎵 Tocar Hino do Galo 🎵</button>
+<audio id="hino" preload="auto" loop>
+  <source src="audio/hino-atletico.mp3" type="audio/mpeg">
+  Seu navegador não suporta a tag de áudio.
+</audio>
+
+<audio id="gol" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
+<audio id="erro" src="https://www.fesliyanstudios.com/play-mp3/6511" preload="auto"></audio>
+
+<div id="placar">Pontuação: 0</div>
+<div id="jogo">
+  <h2 id="pergunta"></h2>
+  <div id="opcoes"></div>
+  <div id="mensagem"></div>
+</div>
+
+<script>
+const hino = document.getElementById('hino');
+const btnHino = document.getElementById('tocarHino');
+
+// Tocar o hino ao clicar no botão
+btnHino.addEventListener('click', async () => {
+  try {
+    await hino.play();
+    btnHino.style.display = 'none';
+  } catch(err) {
+    console.error('Erro ao tocar o hino:', err);
+    hino.style.display = 'block';
+    hino.setAttribute('controls', 'controls');
+    alert('Não foi possível tocar automaticamente. Use os controles abaixo.');
+  }
+});
+
+// ==========================
+// Jogo
+// ==========================
+let perguntas = [
+  { pergunta: "Em que ano o Atlético Mineiro foi fundado?", opcoes: ["1908","1912","1899","1921"], correta: "1908" },
+  { pergunta: "Qual o apelido do Atlético Mineiro?", opcoes: ["Galo","Raposa","Leão","Furacão"], correta: "Galo" },
+  { pergunta: "Quem é o maior artilheiro do Galo?", opcoes: ["Reinaldo","Hulk","Éder Aleixo","Ronaldinho Gaúcho"], correta: "Reinaldo" },
+  { pergunta: "Em que ano o Atlético venceu a Libertadores pela primeira vez?", opcoes: ["2013","2015","2017","2018"], correta: "2013" },
+  { pergunta: "Quantos títulos brasileiros o Atlético possui?", opcoes: ["1","2","3","4"], correta: "1" },
+  { pergunta: "Qual foi o primeiro título nacional do Atlético?", opcoes: ["Copa do Brasil","Brasileiro","Supercopa","Libertadores"], correta: "Copa do Brasil" },
+  { pergunta: "Qual é o estádio atual do Atlético?", opcoes: ["Arena MRV","Mineirão","Independência","Maracanã"], correta: "Arena MRV" },
+  { pergunta: "Quem foi campeão brasileiro em 1971 pelo Atlético?", opcoes: ["Atlético","Cruzeiro","Flamengo","São Paulo"], correta: "Atlético" },
+  { pergunta: "Ronaldinho Gaúcho jogou no Atlético?", opcoes: ["Sim","Não"], correta: "Sim" },
+  { pergunta: "Quantas vezes o Atlético ganhou a Copa Libertadores?", opcoes: ["1","2","3","0"], correta: "1" },
+  { pergunta: "Quem marcou gols decisivos na Libertadores 2013?", opcoes: ["Jô","Diego Tardelli","Hulk","Réver"], correta: "Jô" },
+  { pergunta: "O Atlético já venceu a Supercopa do Brasil?", opcoes: ["Sim","Não"], correta: "Sim" },
+  { pergunta: "Em que ano o Atlético inaugurou a Arena MRV?", opcoes: ["2021","2020","2019","2022"], correta: "2021" },
+  { pergunta: "Quem é conhecido como Rei do Galo?", opcoes: ["Reinaldo","Hulk","Ronaldinho Gaúcho","Éder Aleixo"], correta: "Reinaldo" },
+  { pergunta: "Qual é a maior torcida organizada do Atlético?", opcoes: ["Galo Doido","Torcida Jovem","Raça Rubro-Negra","Galoucura"], correta: "Galoucura" },
+  { pergunta: "Quantos títulos da Copa do Brasil o Atlético possui?", opcoes: ["2","1","3","0"], correta: "2" },
+  { pergunta: "O Atlético é do estado de qual cidade?", opcoes: ["Minas Gerais","São Paulo","Rio de Janeiro","Bahia"], correta: "Minas Gerais" },
+  { pergunta: "Qual técnico comandou o Galo na Libertadores 2013?", opcoes: ["Cuca","Levir Culpi","Paulo Autuori","Telê Santana"], correta: "Cuca" },
+  { pergunta: "Hulk jogou no Atlético?", opcoes: ["Sim","Não"], correta: "Sim" },
+  { pergunta: "Qual jogador é ídolo histórico conhecido por dribles e gols de falta?", opcoes: ["Éder Aleixo","Reinaldo","Jô","Ronaldinho Gaúcho"], correta: "Éder Aleixo" }
+];
+
+let pontos = 0;
+let atual = 0;
+
+function mostrarPergunta() {
+  if (atual >= perguntas.length) {
+    document.getElementById("jogo").innerHTML = "<h2>Fim do jogo! Pontuação final: " + pontos + "</h2>";
+    return;
+  }
+  const q = perguntas[atual];
+  document.getElementById("pergunta").innerText = q.pergunta;
+  const div = document.getElementById("opcoes");
+  div.innerHTML = "";
+  q.opcoes.forEach(opcao => {
+    const btn = document.createElement("button");
+    btn.classList.add("opcao");
+    btn.innerText = opcao;
+    btn.onclick = () => verificarResposta(opcao);
+    div.appendChild(btn);
+  });
+}
+
+function piscarFundo() {
+  let count = 0;
+  const interval = setInterval(() => {
+    document.body.style.background = count % 2 === 0 ? "#fff" : "#000";
+    count++;
+    if(count > 5){
+      clearInterval(interval);
+      document.body.style.background = "#000";
+    }
+  }, 100);
+}
+
+function criarConfetes() {
+  for(let i=0; i<30; i++){
+    const confete = document.createElement("div");
+    confete.classList.add("confete");
+    confete.style.background = ["#fff","#000","#FFD700","#FF4500","#FF1493"][Math.floor(Math.random()*5)];
+    confete.style.left = Math.random()*window.innerWidth + "px";
+    confete.style.animationDuration = (Math.random()*2+1)+"s";
+    document.body.appendChild(confete);
+    setTimeout(() => confete.remove(), 2000);
+  }
+}
+
+function verificarResposta(resposta) {
+  const q = perguntas[atual];
+  const mensagem = document.getElementById("mensagem");
+
+  if(resposta === q.correta){
+    pontos++;
+    mensagem.innerText = "GOOOL! ⚽";
+    mensagem.style.display = "block";
+    mensagem.style.animation = "golAnim 0.8s ease-in-out";
+    document.getElementById("gol").currentTime = 0;
+    document.getElementById("gol").play();
+    piscarFundo();
+    criarConfetes();
+  } else {
+    mensagem.innerText = "GOL ANULADO! ❌";
+    mensagem.style.display = "block";
+    mensagem.style.animation = "none";
+    document.getElementById("erro").currentTime = 0;
+    document.getElementById("erro").play();
+  }
+
+  document.getElementById("placar").innerText = "Pontuação: " + pontos;
+
+  setTimeout(() => {
+    mensagem.style.display = "none";
+    atual++;
+    mostrarPergunta();
+  }, 1500);
+}
+
+mostrarPergunta();
+</script>
+</body>
+</html>
